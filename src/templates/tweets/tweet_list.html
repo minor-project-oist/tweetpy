@@ -1,0 +1,252 @@
+
+
+
+{%extends 'base.html'%}
+
+{% block scripts %}
+<script>
+
+
+    function getParameterByName(name, url) {
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+          results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  }
+
+ 
+ 
+
+$(document).ready(function(){
+
+
+ 
+
+  querystring = getParameterByName("q");
+
+  var tweetlist = [];
+  var nextTweets;
+
+
+
+  function attachTweet(tweetValue , prepend){
+
+    var tweetcontent = tweetValue.content;
+       
+        var tweetuser = tweetValue.user.username;
+        var time = tweetValue.date_display
+        var url = tweetValue.user.url;
+
+        var strHtml = `<div class="media">
+            
+            <div class="media-body">
+              <h4 class="mt-0">${tweetcontent} </h4>
+              <p>via   <a href="${url}"> ${tweetuser} </a> | ${time} | <a href="#">View</a></p>
+          
+          </div>`
+
+        if(prepend==true){
+          $("#tweet-container").prepend( strHtml
+          ) 
+        }
+        else{
+          $("#tweet-container").append(strHtml) 
+         }
+   } 
+
+
+  
+  
+  function parsetweet(){
+
+    if (tweetlist==0){
+      $("#tweet-container").text("No tweets currently found.")
+
+    }
+    else{
+      $.each(tweetlist,function(key,value)
+{
+        tweetValue = value;
+        attachTweet(tweetValue);
+
+        }
+      )}
+    
+  }
+
+
+
+  function fetchTweets(url){
+    console.log(url);
+    var fetchurl;
+    if(!url){
+      fetchurl = "/api/tweet/";
+    }
+    else{
+      fetchurl = url;
+    }
+    $.ajax(
+  {
+    url: fetchurl,
+    
+    data:{
+      "q":querystring
+    },
+    method: "GET",
+   
+    success: function(data){
+      tweetlist = data.results;
+      nextTweets = data.next;
+      parsetweet();
+      
+     
+}
+}
+)
+
+  }
+fetchTweets();
+
+
+
+$(".loadmore").click(function(event){
+  if(nextTweets){
+    fetchTweets(nextTweets);
+  }
+  else{
+    
+  }
+ 
+})
+
+var charStart = 140;
+var charCurrent = 0;
+$("#tweet-form").append(`<span id="tweetcharleft"> ${charStart} </span>`)
+
+$("#tweet-form textarea").keyup(function(event){
+  var value = $(this).val();
+  var len = value.length;
+  charCurrent = charStart-len;
+  $("#tweetcharleft").text(charCurrent);
+  
+
+  if(charCurrent>0){
+    $("#tweetcharleft").removeClass("grey-color");
+    $("#tweetcharleft").removeClass("red-color");
+
+  }
+  else if(charCurrent==0){
+    $("#tweetcharleft").removeClass("red-color");
+    $("#tweetcharleft").addClass("grey-color");
+
+  }
+
+  
+  else if(charCurrent<0){
+    $("#tweetcharleft").removeClass("grey-color");
+    $("#tweetcharleft").addClass("red-color");
+
+  }
+    
+
+})
+
+
+
+
+
+
+
+
+
+  $("#tweet-form").submit(function(event){
+
+    event.preventDefault();
+    var this_  = $(this);
+    var formData = this_.serialize()
+    console.log(formData);
+    console.log(this_);
+
+    if(charCurrent>0){
+      $.ajax(
+        {
+          url: "/api/tweet/create/",
+          
+          data: formData,
+          method: "POST",
+         
+          success: function(data){
+            tweetlist = data;
+            
+            attachTweet(tweetlist,true);
+            
+            this_.find("input[type=text], textarea").val("")
+          },
+  
+          error: function(data){
+            console.log("erro");
+            console.log(data.statusText);
+            console.log(data.status);
+  
+          }
+         
+      }
+      )
+
+    }
+    else{
+      console.log("size limit exceede");
+    }
+
+  
+})
+})
+
+</script>
+
+
+{%endblock scripts %}
+
+{% block title %} Tweets| {{block.super}}{% endblock title%}
+
+{% block content %} 
+<div class="row">
+
+  
+
+
+
+    <div class="col-sm-3" style="background-color:red;">
+       <h3> {{request.user}}</h3>
+    </div>
+    
+   
+
+    <div class="col-sm-9">
+      {% if not request.GET.q%}
+        <!-- {% include 'tweets/forms.html' with form=createform action=create_url btn_value='Tweet'%} -->
+        <form action="/tweet/create/"method="post" id="tweet-form">{% csrf_token %}
+            {{ createform.as_p }}
+            <input class="btn btn-default" type="submit" value="Tweet" />
+           
+        </form>
+        
+        {% endif%}
+
+       <div id="tweet-container">
+
+        </div>
+        <a href="#" class="loadmore">Load More</a>
+
+
+
+
+
+           
+  </div>
+</div>
+
+{% endblock content%}
