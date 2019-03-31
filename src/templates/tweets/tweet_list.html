@@ -17,6 +17,8 @@
       return decodeURIComponent(results[2].replace(/\+/g, ' '));
   }
 
+
+
  
  
 
@@ -29,6 +31,7 @@ $(document).ready(function(){
 
   var tweetlist = [];
   var nextTweets;
+  var id_for_like = 0;
 
 
 
@@ -40,11 +43,22 @@ $(document).ready(function(){
         var time = tweetValue.date_display
         var url = tweetValue.user.url;
 
+        var likeCount = tweetValue.likes;
+        var verb = 'like'
+        
+        if (tweetValue.did_like){
+          verb = "unlike";
+          }
+        
+
+
+
         var strHtml = `<div class="media">
             
             <div class="media-body">
               <h4 class="mt-0">${tweetcontent} </h4>
-              <p>via   <a href="${url}"> ${tweetuser} </a> | ${time} | <a href="#">View</a></p>
+              <p>via   <a href="${url}"> ${tweetuser} </a> | ${time} | <a href="#" >View</a></p> <a class='tweet-liked' data-id="${tweetValue.id}" data-likes ="${likeCount}"  href="">${verb}(${likeCount})</a>
+              
           
           </div>`
 
@@ -57,6 +71,48 @@ $(document).ready(function(){
          }
    } 
 
+   $(document.body).on('click','.tweet-liked',function(e){
+    e.preventDefault();
+    var this_ =  $(this)
+    var tweet_id = this_.attr('data-id')
+
+    var likes = parseInt(this_.attr('data-likes'));
+    console.log(likes)
+    
+    
+    $.ajax(
+      {
+  
+     url:`api/tweet/${tweet_id}/likes/`,
+     method:"GET",
+     success: function(data){
+
+      likes = data.count_likes;
+  
+      if (data.liked){
+        this_.text("unlike"+`(${likes})`);
+      }
+      else{
+        
+          this_.text("like"+`(${likes})`);
+        }
+        
+  
+  
+      
+  
+     },
+     error: function(data){
+      console.log("error")
+      console.log(data)
+    }
+  
+      }
+    )
+  }
+  
+  )
+    
 
   
   
@@ -248,5 +304,7 @@ $("#tweet-form textarea").keyup(function(event){
            
   </div>
 </div>
+
+
 
 {% endblock content%}

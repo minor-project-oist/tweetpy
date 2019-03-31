@@ -29,7 +29,7 @@ class UserProfileManager(models.Manager):
             return True
         
         return False
-
+  
 
     
     
@@ -41,8 +41,18 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+      
+    def get_following(self):
+        users   = self.following.all()
+        print("*****************************")
+        print(users)
+
+        return users
+        
 
 
-@receiver(post_save,sender=User)
-def save_profile(sender,instance,**kwargs):
-    UserProfile.objects.create(user=instance)
+
+# @receiver(post_save,sender=User)
+# def save_profile(sender,instance,**kwargs):
+#     UserProfile.objects.create(user=instance)
