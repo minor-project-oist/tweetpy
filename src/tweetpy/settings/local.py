@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'tweets',
     'accounts',
     'rest_framework',
+    'hashapp',
+    'blog',
+    'taggit',
 ]
 
 MIDDLEWARE = [

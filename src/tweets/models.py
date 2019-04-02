@@ -22,10 +22,26 @@ class TweetManager(models.Manager):
     
     def get_likes(self,user,obj):
         return obj.likes.all().count()
+    
+   
+    def retweet(self,user,parent_obj):
+        if parent_obj.parent:
+            og_parent = parent_obj.parent
+        else:
+            og_parent = parent_obj
+        
+        obj = self.model(
+            parent = og_parent,
+            user = user,
+            content = parent_obj.content,
+        )
+        obj.save()
+        return obj
 
 
 # Create your models here.
 class Tweet(models.Model):
+    parent = models.ForeignKey("self",blank=True,null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     content =  models.CharField(max_length=140,validators=[validate_content])
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL,related_name='liked',blank=True)

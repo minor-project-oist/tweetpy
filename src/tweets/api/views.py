@@ -48,13 +48,20 @@ class TweetListAPIView(generics.ListAPIView):
 
     def get_queryset(self,*args,**kwargs):
         qs = Tweet.objects.all()
-        im_following = self.request.user.profile.get_following()
+        if self.kwargs.get('username'):
+            requested_user = self.kwargs.get('username')
+            qs = qs.filter(user__username=requested_user).order_by("-timestamp")
 
-        qs1 = qs.filter(user__in=im_following)
-        qs2 = Tweet.objects.filter(user=self.request.user)
-        qs = (qs1|qs2).distinct().order_by("-timestamp")
+        else:
+
+            qs = Tweet.objects.all()
+            im_following = self.request.user.profile.get_following()
+
+            qs1 = qs.filter(user__in=im_following)
+            qs2 = Tweet.objects.filter(user=self.request.user)
+            qs = (qs1|qs2).distinct().order_by("-timestamp")
         query = self.request.GET.get("q",None)
-        
+            
         if query is not None:
             qs = qs.filter(
                 Q(content__icontains=query) |

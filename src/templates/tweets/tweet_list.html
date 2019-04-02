@@ -6,260 +6,12 @@
 {% block scripts %}
 <script>
 
+  $(document).ready(function () {
 
-    function getParameterByName(name, url) {
-      if (!url) url = window.location.href;
-      name = name.replace(/[\[\]]/g, '\\$&');
-      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-          results = regex.exec(url);
-      if (!results) return null;
-      if (!results[2]) return '';
-      return decodeURIComponent(results[2].replace(/\+/g, ' '));
-  }
-
-
-
- 
- 
-
-$(document).ready(function(){
-
-
- 
-
-  querystring = getParameterByName("q");
-
-  var tweetlist = [];
-  var nextTweets;
-  var id_for_like = 0;
-
-
-
-  function attachTweet(tweetValue , prepend){
-
-    var tweetcontent = tweetValue.content;
-       
-        var tweetuser = tweetValue.user.username;
-        var time = tweetValue.date_display
-        var url = tweetValue.user.url;
-
-        var likeCount = tweetValue.likes;
-        var verb = 'like'
-        
-        if (tweetValue.did_like){
-          verb = "unlike";
-          }
-        
-
-
-
-        var strHtml = `<div class="media">
-            
-            <div class="media-body">
-              <h4 class="mt-0">${tweetcontent} </h4>
-              <p>via   <a href="${url}"> ${tweetuser} </a> | ${time} | <a href="#" >View</a></p> <a class='tweet-liked' data-id="${tweetValue.id}" data-likes ="${likeCount}"  href="">${verb}(${likeCount})</a>
-              
-          
-          </div>`
-
-        if(prepend==true){
-          $("#tweet-container").prepend( strHtml
-          ) 
-        }
-        else{
-          $("#tweet-container").append(strHtml) 
-         }
-   } 
-
-   $(document.body).on('click','.tweet-liked',function(e){
-    e.preventDefault();
-    var this_ =  $(this)
-    var tweet_id = this_.attr('data-id')
-
-    var likes = parseInt(this_.attr('data-likes'));
-    console.log(likes)
-    
-    
-    $.ajax(
-      {
-  
-     url:`api/tweet/${tweet_id}/likes/`,
-     method:"GET",
-     success: function(data){
-
-      likes = data.count_likes;
-  
-      if (data.liked){
-        this_.text("unlike"+`(${likes})`);
-      }
-      else{
-        
-          this_.text("like"+`(${likes})`);
-        }
-        
-  
-  
-      
-  
-     },
-     error: function(data){
-      console.log("error")
-      console.log(data)
-    }
-  
-      }
-    )
-  }
-  
-  )
     
 
-  
-  
-  function parsetweet(){
-
-    if (tweetlist==0){
-      $("#tweet-container").text("No tweets currently found.")
-
-    }
-    else{
-      $.each(tweetlist,function(key,value)
-{
-        tweetValue = value;
-        attachTweet(tweetValue);
-
-        }
-      )}
-    
-  }
-
-
-
-  function fetchTweets(url){
-    console.log(url);
-    var fetchurl;
-    if(!url){
-      fetchurl = "/api/tweet/";
-    }
-    else{
-      fetchurl = url;
-    }
-    $.ajax(
-  {
-    url: fetchurl,
-    
-    data:{
-      "q":querystring
-    },
-    method: "GET",
-   
-    success: function(data){
-      tweetlist = data.results;
-      nextTweets = data.next;
-      parsetweet();
-      
-     
-}
-}
-)
-
-  }
-fetchTweets();
-
-
-
-$(".loadmore").click(function(event){
-  if(nextTweets){
-    fetchTweets(nextTweets);
-  }
-  else{
-    
-  }
- 
-})
-
-var charStart = 140;
-var charCurrent = 0;
-$("#tweet-form").append(`<span id="tweetcharleft"> ${charStart} </span>`)
-
-$("#tweet-form textarea").keyup(function(event){
-  var value = $(this).val();
-  var len = value.length;
-  charCurrent = charStart-len;
-  $("#tweetcharleft").text(charCurrent);
-  
-
-  if(charCurrent>0){
-    $("#tweetcharleft").removeClass("grey-color");
-    $("#tweetcharleft").removeClass("red-color");
-
-  }
-  else if(charCurrent==0){
-    $("#tweetcharleft").removeClass("red-color");
-    $("#tweetcharleft").addClass("grey-color");
-
-  }
-
-  
-  else if(charCurrent<0){
-    $("#tweetcharleft").removeClass("grey-color");
-    $("#tweetcharleft").addClass("red-color");
-
-  }
-    
-
-})
-
-
-
-
-
-
-
-
-
-  $("#tweet-form").submit(function(event){
-
-    event.preventDefault();
-    var this_  = $(this);
-    var formData = this_.serialize()
-    console.log(formData);
-    console.log(this_);
-
-    if(charCurrent>0){
-      $.ajax(
-        {
-          url: "/api/tweet/create/",
-          
-          data: formData,
-          method: "POST",
-         
-          success: function(data){
-            tweetlist = data;
-            
-            attachTweet(tweetlist,true);
-            
-            this_.find("input[type=text], textarea").val("")
-          },
-  
-          error: function(data){
-            console.log("erro");
-            console.log(data.statusText);
-            console.log(data.status);
-  
-          }
-         
-      }
-      )
-
-    }
-    else{
-      console.log("size limit exceede");
-    }
-
-  
-})
-})
+    loadTweetContainer("tweet-container");
+  })
 
 </script>
 
@@ -270,11 +22,6 @@ $("#tweet-form textarea").keyup(function(event){
 
 {% block content %} 
 <div class="row">
-
-  
-
-
-
     <div class="col-sm-3" style="background-color:red;">
        <h3> {{request.user}}</h3>
     </div>
@@ -292,7 +39,7 @@ $("#tweet-form textarea").keyup(function(event){
         
         {% endif%}
 
-       <div id="tweet-container">
+       <div id="tweet-container" data-url='/api/tweet'>
 
         </div>
         <a href="#" class="loadmore">Load More</a>
@@ -308,3 +55,4 @@ $("#tweet-form textarea").keyup(function(event){
 
 
 {% endblock content%}
+
