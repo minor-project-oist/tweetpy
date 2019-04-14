@@ -28,8 +28,8 @@ class UserTweetsDisplay(DetailView):
 class UserFollowView(View):
 
     def get(self,request,username,*args,**kwargs):
-        # print(username)
-        # print("************************************************")
+        print(request.get_full_path())
+        print("************************************************")
         toggle_user = get_object_or_404(User,username__iexact=username)
         
         if request.user.is_authenticated():
@@ -37,7 +37,7 @@ class UserFollowView(View):
             
             # print("999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999")
         
-        return redirect("profiles:detail",username=username)
+        return redirect("/",username=username)
 
 
 

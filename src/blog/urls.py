@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.contrib import admin
 from blog import views
-from blog.views import TagSearchView,BlogDetailView
+from blog.views import TagSearchView,BlogDetailView,BlogCreateView
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -12,6 +12,9 @@ urlpatterns = [
     url(r'^$',views.home,name='blog-home'),
     url(r'^search/(?P<tag>.*)/$',TagSearchView.as_view(),name='blog-search'),
     url(r'^detail/(?P<pk>\d+)/$',BlogDetailView.as_view(),name='blog-detail'),
+    url(r'^create/',BlogCreateView.as_view(),name='blog-create'),
+
+
 
 
    

@@ -8,7 +8,9 @@ from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
 from .paginations import StandardResultsPagination
 from rest_framework.response import Response
-
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from rest_framework.views import APIView
 
 class LikeToggleAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -31,7 +33,17 @@ class TweetCreateAPIView(generics.CreateAPIView):
 
 
     def perform_create(self, serializer):
+        
         serializer.save(user=self.request.user)
+        return Response({'message':"done"})
+
+
+@method_decorator(csrf_exempt,name = 'dispatch')
+class CommentAPIView(APIView):
+
+    
+    def post(self, request, *args,**kwargs):
+        print(request.data,"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
 
     
 
@@ -50,15 +62,15 @@ class TweetListAPIView(generics.ListAPIView):
         qs = Tweet.objects.all()
         if self.kwargs.get('username'):
             requested_user = self.kwargs.get('username')
-            qs = qs.filter(user__username=requested_user).order_by("-timestamp")
+            qs = qs.filter(user__username=requested_user,reply=False).order_by("-timestamp")
 
         else:
 
             qs = Tweet.objects.all()
             im_following = self.request.user.profile.get_following()
 
-            qs1 = qs.filter(user__in=im_following)
-            qs2 = Tweet.objects.filter(user=self.request.user)
+            qs1 = qs.filter(user__in=im_following,reply=False)
+            qs2 = Tweet.objects.filter(user=self.request.user,reply=False)
             qs = (qs1|qs2).distinct().order_by("-timestamp")
         query = self.request.GET.get("q",None)
             
@@ -69,4 +81,7 @@ class TweetListAPIView(generics.ListAPIView):
             )
 
         return qs
+
+
+    
     

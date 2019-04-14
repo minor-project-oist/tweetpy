@@ -1,16 +1,19 @@
-from django.shortcuts import render,get_object_or_404
+from django.shortcuts import render,get_object_or_404,redirect
 from django.http import HttpResponse
 from blog.models import Post
 
 from django.views.generic import View,DetailView
 
 from taggit.models import Tag
+from taggit.managers import TaggableManager
+
 
 
 
 def home(request):
     context = {
-        "posts" : Post.objects.all()
+        "posts" : Post.objects.all(),
+        "tags" : Tag.objects.all().distinct(),
     }
     return render(request,'blog/post_list.html',context)
 
@@ -25,9 +28,6 @@ class BlogDetailView(DetailView):
 
 
 
-# def about(request):
-#     return render(request,'blog/about.html')
-
 
 class TagSearchView(View):
 
@@ -39,4 +39,32 @@ class TagSearchView(View):
         
 
         return render(request,'blog/post_list.html',{"posts":obj})
+
+class BlogCreateView(View):
+
+    def get(self,request):
+        return render(request,'blog/writearticle.html')
+    
+    def post(self,request):
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        print(request.POST['editor1'])
+
+        title = request.POST['title']
+        content = request.POST['editor1']
+        tags = request.POST['tag']
+
+        post = Post.objects.create(author=request.user , title=title,content=content)
+        for t in tags.split(","):
+
+            tag = Tag.objects.create(name=t)
+            post.tags.add(tag)
+        post.save()
+     
+
+        return redirect('/blog')
+    
+        
+        
+
+
 

@@ -6,21 +6,40 @@
 
  {% block content %} 
 
- <article class="media content-section">
-    <div class="media-body">
-      <div class="article-metadata">
-        <a class="mr-2" href="#">{{ post.author }}</a>
-        <small class="text-muted">{{ post.date_posted }}</small>
-      </div>
-      <h2><a class="article-title" href="/blog/detail/{{post.id}}">{{ post.title }}</a></h2>
-      <p class="article-content">{{ post.content }}</p>
-      <p>
-        {%for tags in post.tags.all%}
-        <a href="/blog/search/{{tags}}"><span class="badge badge-light">{{tags}}</span></a>
-        {% endfor %}
-      </p>
+ 
+ <div class="container">
+    <div style="margin-top: 80px;">
+        <h2 class="d-inline">Articles</h2>
+   <button class="btn btn d-inline btn-danger float-right"><i class="fas fa-pen-fancy"></i>
+   
+    <a style="text-decoration: none; color: inherit;" href="writearticle.html">Edit Article</a></button>
     </div>
-    <hr>
-</article>
+   <br>
+
+</div>
+
+    <div class="row">
+   
+        <div class="col-lg-12">
+            <article class="media content-section">
+                <div class="media-body">
+                  <div class="article-metadata">
+                    <a class="mr-2" href="#">{{ post.author }}</a>
+                    <small class="text-muted">{{ post.date_posted }}</small>
+                  </div>
+                  <h2><a class="article-title" href="/blog/detail/{{post.id}}">{{ post.title }}</a></h2>
+                  <p class="article-content">{{ post.content }}</p>
+                  <p>
+                    {%for tags in post.tags.all%}
+                    <a href="/blog/search/{{tags}}"><span class="badge badge-pill badge-dark">{{tags}}</span></a>
+                    {% endfor %}
+                  </p>
+                </div>
+                <hr>
+            </article>
+    
+        </div>
+    </div
+
       
 {% endblock content%}

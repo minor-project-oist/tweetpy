@@ -1,0 +1,9 @@
+{% for profile in recommended %}
+<p>
+        <a  style='color:inherit;'href="/user/{{profile.user.username}}/"><span style="font-style:initial">{{profile.user.username}}</span></a>
+        &nbsp; &nbsp; <a href="{% url 'profiles:follow' username=profile.user.username %}" > <i style='size:3x' class="fas fa-user-plus"></i>
+        </a>
+       
+</p>
+
+{% endfor %}

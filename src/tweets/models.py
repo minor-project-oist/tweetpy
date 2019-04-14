@@ -5,6 +5,10 @@ from django.urls import reverse
 
 from .validators import validate_content
 
+import json
+from django.core.serializers import serialize
+from django.utils.timesince import timesince
+
 
 
 class TweetManager(models.Manager):
@@ -45,6 +49,7 @@ class Tweet(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     content =  models.CharField(max_length=140,validators=[validate_content])
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL,related_name='liked',blank=True)
+    reply = models.BooleanField(verbose_name="Is a reply",default=False)
     updated = models.DateTimeField(auto_now = True)
     timestamp = models.DateTimeField(auto_now_add = True)
 
@@ -52,6 +57,27 @@ class Tweet(models.Model):
 
     def get_absolute_url(self):
         return reverse("tweet:detail",kwargs={"pk":self.pk})
+    def hell(self):
+        obj = Tweet.objects.filter(parent=self,reply=True)
+
+        lst = []
+        for q in obj:
+            d = dict()
+            d['user'] = q.user.username
+            d['content'] = q.content
+           
+            d['time'] = timesince(q.timestamp)
+            lst.append(d)
+        
+           
+         
+     
+        
+        # j_dic = serialize('json',obj)
+        # print(j_dic,"&&&&&&&&&&&&&&&&&&&&&&&&   $$$$$$$$$")
+        j_dic = json.dumps(lst)
+        return j_dic,len(lst)
+         
     
     
     def __str__(self):

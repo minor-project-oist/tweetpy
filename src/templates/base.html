@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,9 +10,19 @@
     <title>{%block title%} Tweetme.co{% endblock title%}</title>
 
     <!-- Bootstrap -->
-    <link href="{%static 'css/bootstrap.min.css'%}" rel="stylesheet">
-
+    <!-- <link href="{%static 'css/bootstrap.min.css'%}" rel="stylesheet"> -->
+   
    <!-- ani -->
+   <link rel="stylesheet"  href="{%static 'css/custom.css'%}"> 
+   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
+   crossorigin="anonymous">
+    
+   <!-- <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+   <link rel="stylansesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet"  href="{% static 'css/custom.css'%}">
+    <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <style>
         .grey-color{
           color : grey;
@@ -19,7 +30,29 @@
         .red-color{
           color : red;
         }
+        i {
+          font-family: fontawesome !important;
+          }
     </style>
+    <style>
+.fb-image-profile
+{
+    margin: -96px 16px 0px 25px;
+    z-index: 9;
+    width: 20%; 
+    height: 270px;
+}
+</style>
+<style>
+
+.fb-profile .jumbotron{
+  z-index: 0;
+  width: 100%;  
+  margin-bottom: 10px;
+}
+
+
+</style>
   </head>
   <body>
     
@@ -35,6 +68,8 @@
        
     </div>
 
+    {% include "reply-modal.html" %}
+
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
@@ -46,7 +81,7 @@
           var searchQuery;
   
   
-          $("#navbar-search-form ").keyup(function(event){
+          $("#navbar-search-form").keyup(function(event){
               
               searchQuery = $(this).val();
               console.log(searchQuery);
@@ -104,7 +139,7 @@ function loadTweetContainer(tweetContainerId){
   }
 
   initialUrl = container.attr("data-url") || "/api/tweet";
-console.log(initialUrl);
+
 
 
 
@@ -120,7 +155,7 @@ console.log(initialUrl);
        var userregex =  /(^|\s)@([\w\d-]+)/g
        
        var newhtml = $(this).html().replace(hashregex,"$1<a href='/tags/$2/'>#$2</a>");
-        newhtml = newhtml.replace(userregex,"$1@<a href='user/$2/'>$2</a>");
+        newhtml = newhtml.replace(userregex,"$1@<a href='/user/$2/'>$2</a>");
  
        
        $(this).html(newhtml)
@@ -139,11 +174,28 @@ console.log(initialUrl);
 }
 
 
+function attachcomment(tweetValue){
+  var commentbody = $(`.comment-container${tweetValue.parent.id}`)
+  
+  commentbody.prepend(` <div class="card mt-3" >
+     <div class="card-body">
 
-
+    <p><a href="#"> ${tweetValue.user.username}</a> |<span class="text-muted"> ${tweetValue.date_display}</span></p>
+    <p>${tweetValue.content}</p>
+  </div>  </div>
+  `) 
+  var countClass = $(`.comment-count${tweetValue.parent.id}`)
+  console.log("countClass.val()")
+  console.log(countClass.text())
+  var count  =  countClass.text()
+  count =  parseInt(count)+1
+  countClass.text(`${count}`)
+  
+}
+  
 
   function attachTweet(tweetValue ,retweet, prepend){
-   
+       
         var tweetcontent = tweetValue.content;
        
         var tweetuser = tweetValue.user.username;
@@ -162,39 +214,142 @@ console.log(initialUrl);
           }
          
         
-        if(retweet && tweetValue.parent){
+        if(retweet && tweetValue.parent && tweetValue.reply==false){
 
           var maintweet = tweetValue.parent
-          tweetformatedHtml =  `<div class="media">
+         // tweetformatedHtml =  `<div class="media">
             
-              <div class="media-body">
-                Retweet via ${tweetuser}  on ${time} </br>
+         //     <div class="media-body">
+         //       Retweet via ${tweetuser}  on ${time} </br>
 
                
-                <h4 class="mt-0"> ${tweetcontent} </h4>
-                <p>via   <a href="${maintweet.user.url}"> ${maintweet.user.username} </a> | ${maintweet.date_display} | <a href="tweet/${maintweet.id}"  >View</a></p> <a class='tweet-liked' data-id="${tweetValue.id}" data-likes ="${likeCount}"  href="">${verb}(${likeCount})</a>
-                | <a href="tweet/${tweetValue.id}/retweet"> Retweet </a>
+         //       <h4 class="mt-0"> ${tweetcontent} </h4>
+         //       <p>via   <a href="${maintweet.user.url}"> ${maintweet.user.username} </a> | ${maintweet.date_display} | <a href="tweet/${maintweet.id}"  >View</a></p> <a class='tweet-liked' data-id="${tweetValue.id}" data-likes ="${likeCount}"  href="">${verb}(${likeCount})</a>
+        //        | <a href="tweet/${tweetValue.id}/retweet"> Retweet </a>
                 
-              </div>
-            </div>
-            <hr>`
+         //     </div>
+         //   </div>
+         //   <hr>`
+
+         // tick ends here
+
+          tweetformatedHtml = `<div class="card " style="border: none;">
+
+              <div class="media-body">
+                 <span class="text-muted"> Retweet via ${tweetuser}  on ${time}</span> </br>
+                <h4 class="card-title"> <a  style="color: inherit;" href="/user/${maintweet.user.username}">${maintweet.user.username}</a><span class="text-muted d-inline" style="font-size:15px">@${maintweet.user.username} | ${time} </span></h4>
+                
+                <p class="card-text"> ${tweetcontent}</p>
+    
+                <a style="text-decoration: none; color: inherit;" class="mr-3 tweet-liked" data-id="${maintweet.id}" data-likes ="${maintweet.likes}" href=""><i class="fas fa-thumbs-up"> </i>
+    
+                  <span>${maintweet.likes}</span></a>
+    
+    <a href="tweet/${tweetValue.id}/retweet" style="border:none;" class="btn btn-sm btn-outline-success mr-3"><i class="fas fa-retweet"></i></a>
+               
+    
+                <button  style="border:none;" class="btn btn-outline-danger btn-sm" data-toggle="collapse" data-target="#collapse-btn-${tweetValue.id}"><i
+                    class="fas fa-comment-alt"></i><span class="comment-count${tweetValue.id}">  ${tweetValue.comments_count}</span></button>
+                <div class="collapse mb-5" id="collapse-btn-${tweetValue.id}">`;
+                    tweetformatedHtml +=  `<div class="card" style="border:none;">
+                        <a href='#' class='btn btn-default tweet-reply' data-user='${tweetValue.user.username}' data-id='${tweetValue.id }'>Comment</a>
+
+                        <div class="media-body comment-container${tweetValue.id}">
+        `
+          
+          $.each(JSON.parse(tweetValue.comments),function(key,value){
+           
+            tweetformatedHtml +=  `
+             <div class="card mt-3" >
+                <div class="card-body">
+                  <p><a href="#"> ${value.user}</a> | ${value.time}</p>
+                  <p>${value.content}</p>
+                </div>
+
+              </div>`
+
+         
+
+          })
+          tweetformatedHtml += ` 
+        </div>
+        </div>
+    </div>
+    <hr>`
+
 
 
 
         }
-        else{
-          tweetformatedHtml= `<div class="media">
+        else if(tweetValue.reply==false){
+        //  tweetformatedHtml= `<div class="media">
             
-              <div class="media-body">
+         //     <div class="media-body">
                
-                <h4 class="mt-0"> ${tweetcontent} </h4>
-                <p>via   <a href="${url}"> ${tweetuser} </a>| ${time} | <a href="/tweet/${tweetValue.id}"  >View</a></p> 
-                <a class='tweet-liked' data-id="${tweetValue.id}" data-likes ="${likeCount}"  href="">${verb}(${likeCount})</a>
-                | <a href="tweet/${tweetValue.id}/retweet"> Retweet </a>
-          </div>
+         //       <h4 class="mt-0"> ${tweetcontent} </h4>
+         //       <p>via   <a href="${url}"> ${tweetuser} </a>| ${time} | <a href="/tweet/${tweetValue.id}"  >View</a></p> 
+         //       <a class='tweet-liked' data-id="${tweetValue.id}" data-likes ="${likeCount}"  href="">${verb}(${likeCount})</a>
+         //       | <a href="tweet/${tweetValue.id}/retweet"> Retweet </a>
+         // </div>
+      //  </div>
+      //  <hr>
+       //   `
+      
+       tweetformatedHtml = `<div class="card " style="border: none;">
+
+          <div class="media-body">
+            <h4 class="card-title"><a style="color: inherit;" href="/user/${tweetuser}">${tweetuser}</a> <span class="text-muted d-inline" style="font-size:15px">@${tweetuser} | ${time} </span></h4>
+            
+            <p class="card-text"> ${tweetcontent}</p>
+
+            <a style="text-decoration: none; color: inherit;" class="mr-3 tweet-liked" data-id="${tweetValue.id}" data-likes ="${likeCount}" href=""><i class="fas fa-thumbs-up"> </i>
+
+              <span>${likeCount}</span></a>
+
+            <a href="tweet/${tweetValue.id}/retweet" style="border:none;" class="btn btn-sm btn-outline-success mr-3"><i class="fas fa-retweet"></i></a>
+           
+
+            <button  style="border:none;" class="btn btn-outline-danger btn-sm" data-toggle="collapse" data-target="#collapse-btn-${tweetValue.id}"><i
+                class="fas fa-comment-alt"></i> <span class="comment-count${tweetValue.id}"> ${tweetValue.comments_count}</span></button>
+            <div class="collapse mb-5" id="collapse-btn-${tweetValue.id}">`;
+
+
+                
+                tweetformatedHtml +=  `<div class="card" style="border:none;">
+                    <a href='#' class='btn btn-default tweet-reply' data-user='${tweetValue.user.username}' data-id='${tweetValue.id }'>Comment</a>
+
+                    <div class="media-body comment-container${tweetValue.id}">
+                        
+
+                      
+                      `    
+              
+              $.each(JSON.parse(tweetValue.comments),function(key,value){
+               
+
+
+                tweetformatedHtml +=  `
+                 <div class="card mt-3 " >
+                    <div class="card-body ">
+                      <p><a href="#"> ${value.user}</a> |<span class="text-muted"> ${value.time}</span></p>
+                      <p>${value.content}</p>
+                    </div>
+
+                  </div>`
+
+             
+
+              })
+              tweetformatedHtml += ` 
+            </div>
+            </div>
         </div>
-        <hr>
-          `
+        <hr>`
+
+              
+
+    // tick ends here
+
 
 
         }
@@ -206,6 +361,7 @@ console.log(initialUrl);
           container.append(tweetformatedHtml) 
          }
    } 
+
 
    $(document.body).on('click','.tweet-liked',function(e){
     e.preventDefault();
@@ -225,11 +381,11 @@ console.log(initialUrl);
       likes = data.count_likes;
   
       if (data.liked){
-        this_.text("unlike"+`(${likes})`);
+        this_.html('<i class="fas fa-thumbs-down"> </i>'+`(${likes})`);
       }
       else{
         
-          this_.text("like"+`(${likes})`);
+          this_.html('<i class="fas fa-thumbs-up"> </i>'+`(${likes})`);
         }
         
   
@@ -248,6 +404,24 @@ console.log(initialUrl);
   
   )
     
+  
+  $(document.body).on("click", ".tweet-reply", function(e){
+    e.preventDefault()
+    var this_ = $(this)
+    var parentId = this_.attr("data-id")
+    var username = this_.attr("data-user")
+    var content = this_.parent().parent().find(".content").text()
+    $("#replyModal").modal({})
+   
+    $("#replyModal textarea").after("<input type='hidden' value='" + parentId + "' name='parent_id' />")
+    $("#replyModal textarea").after(`<input type='hidden' value='True' name='reply' />`)
+   
+    $("#replyModal textarea").val(" @" + username + " ")
+    $("#replyModal #replyModalLabel").text("Reply to " + content)
+    $("#replyModal").on("shown.bs.modal", function(){
+      $('textarea').focus()
+    })
+  })
 
   
   
@@ -320,9 +494,10 @@ $(".loadmore").click(function(event){
 
 var charStart = 140;
 var charCurrent = 0;
-$("#tweet-form").append(`<span id="tweetcharleft"> ${charStart} </span>`)
+$(".tweet-form").append(`<span class="text-muted" id="tweetcharleft"> Max ${charStart} characters </span>`);
 
-$("#tweet-form textarea").keyup(function(event){
+$(".tweet-form textarea").keyup(function(event){
+  console.log("events working");
   var value = $(this).val();
   var len = value.length;
   charCurrent = charStart-len;
@@ -351,6 +526,7 @@ $("#tweet-form textarea").keyup(function(event){
 })
 
 
+// comment form 
 
 
 
@@ -358,13 +534,17 @@ $("#tweet-form textarea").keyup(function(event){
 
 
 
-  $("#tweet-form").submit(function(event){
+
+  $(".tweet-form").submit(function(event){
+
+    
 
     event.preventDefault();
+    
     var this_  = $(this);
     var formData = this_.serialize()
     console.log(formData);
-    console.log(this_);
+    console.log("hello guys");
 
     if(charCurrent>0){
       $.ajax(
@@ -376,11 +556,17 @@ $("#tweet-form textarea").keyup(function(event){
          
           success: function(data){
             tweetlist = data;
-            
-            attachTweet(tweetlist,false,true);
-            
+            if(tweetlist.reply==false)
+            {attachTweet(tweetlist,false,true);
+            }
+            else{
+              attachcomment(tweetlist);
+            }
+           
             this_.find("input[type=text], textarea").val("")
             updateHashLink();
+            $("#replyModal").modal("hide")
+           
           },
   
           error: function(data){
@@ -405,9 +591,63 @@ $("#tweet-form textarea").keyup(function(event){
  
     </script>
 
+    <!-- <script>
+
+        function myFunction(id) {
+          console.log(id)
+
+          var comment = $(".comment"+id).val()
+          var parId = $(".par_id"+id).val()
+          var rep = $(".reply"+id).val()
+          console.log(comment)
+          console.log(parId)
+          console.log(rep)
+
+          formdata = {
+            "comment" :comment
+          }
+
+          var payload = JSON.stringify(formdata)
+          console.log(typeof(payload))
+
+          $.ajax(
+        {
+          url: "/api/tweet/"+parId+"/comment/",
+          
+          data: payload,
+          method: "POST",
+         
+          success: function(data){
+            tweetlist = data;
+            
+          },
+  
+          error: function(data){
+            console.log("erro");
+            console.log(data.statusText);
+            console.log(data.status);
+  
+          }
+         
+      }
+      )
+        }
+        
+    
+    
+    </script> -->
+
 
 
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="{static 'js/bootstrap.min.js'}"></script>
+     <!-- <script src="{static 'js/bootstrap.min.js'}"></script>  -->
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
+    crossorigin="anonymous"></script>
+
+    
   </body>
 </html>

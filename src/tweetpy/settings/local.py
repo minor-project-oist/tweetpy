@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'hashapp',
     'blog',
     'taggit',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
