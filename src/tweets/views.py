@@ -20,11 +20,11 @@ class TweetCreateView(LoginRequiredMixin,FormUserNeededMixin,CreateView):
     
     # success_url = '/tweet/'
 
-    login_url = '/admin/'
+    login_url = '/user/login'
 
   
 
-class TweetUpdateView(UserOwnerMixin,UpdateView):
+class TweetUpdateView(LoginRequiredMixin,UserOwnerMixin,UpdateView):
     queryset = Tweet.objects.all()
     form_class = TweetModelForm
     template_name = 'tweets/update_view.html'
@@ -34,7 +34,7 @@ class TweetUpdateView(UserOwnerMixin,UpdateView):
 class TweetDeleteView(LoginRequiredMixin,DeleteView):
     model = Tweet
     template_name = 'tweets/delete_view.html'
-    login_url = '/admin/'
+    login_url = '/user/login_register'
     success_url = reverse_lazy('tweet:list')
 
 
@@ -50,7 +50,7 @@ class RetweetView(View):
         return HttpResponseRedirect(Tweet.get_absolute_url())
 
 
-class TweetListView(ListView):
+class TweetListView(LoginRequiredMixin,ListView):
     # queryset = Tweet.objects.all()
    # template_name = 'tweets/list.html' for custom tempaltes
     
@@ -83,7 +83,7 @@ class TweetListView(ListView):
 
  
 
-class TweetDetailView(DetailView):
+class TweetDetailView(LoginRequiredMixin,DetailView):
     queryset = Tweet.objects.all()
 
     def get_object(self):

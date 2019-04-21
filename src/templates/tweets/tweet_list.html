@@ -31,7 +31,7 @@
     
     -->
    
-    <div class="col-lg-4">
+    <div class="col-lg-4 gayab">
    
         <div class="dashboard" style="margin-top: 80px;">
             <div class="card m-0" style="width: 300px" >
@@ -51,14 +51,17 @@
         </div>
         <br>
         <br>
-        <h2>Recommended User</h2>
-        {% recommended request.user %}
-        
+        <div class="recommended">
+            <h2>Recommended User</h2>
+            {% recommended request.user %}
+            
+        </div>
+       
         </div>
 
         <!-- tweet form  -->
 
-    <div class="col-lg-6 offset">
+    <div class="col-lg-8 ">
       {% if not request.GET.q%}
        
         <div class="" style="margin-top: 80px;">

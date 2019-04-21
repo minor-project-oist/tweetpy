@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'blog',
     'taggit',
     'widget_tweaks',
+    'pagedown',
+    'markdown_deux' 
 ]
 
 MIDDLEWARE = [
@@ -125,6 +127,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+LOGIN_URL = "user/login_register/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_URL = "user/logout/"
+LOGOUT_REDIRECT_URL = "/user/login_register/"
+
+
+
+
+
 
 STATICFILES_DIRS = [
     # will not not be served long term storage only during development

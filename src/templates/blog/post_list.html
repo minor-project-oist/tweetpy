@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load markdown_deux_tags %}
 
 {% block title %} Blog | {{block.super}}{% endblock title%}
 
@@ -43,13 +43,13 @@
                         <a class="mr-2" href="#">{{ post.author }}</a>
                         <small class="text-muted">{{ post.date_posted }}</small>
                       </div>
-                      <h2><a class="article-title" href="{{post.get_absolute_url}}">{{ post.title }}</a></h2>
-                      <p class="article-content">{{ post.content }}</p>
+                      <h2><a class="article-title" style="color:inherit;" href="{{post.get_absolute_url}}">{{ post.title }}</a></h2>
+                      <p class="article-content">{{ post.content |truncatechars:100|markdown }}</p>
                       <p>
                       {%for tags in post.tags.all%}
                       
                       <a href="/blog/search/{{tags}}"><span class="badge badge-pill badge-dark">{{tags}}</span></a>
-                      
+                      <div class="row">
                       {% endfor %}
                     </p>
         
